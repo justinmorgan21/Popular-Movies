@@ -1,0 +1,18 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.jamoogy.popular_movies.MainActivity$MainFragment">
+    <Spinner
+        android:id="@+id/sort_by_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <GridView
+        android:id="@+id/gridview_movies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sort_by_options"
+        android:numColumns="3" />
+
+</RelativeLayout>
