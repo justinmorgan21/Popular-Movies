@@ -1,18 +1,18 @@
 package com.jamoogy.popular_movies;
 
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Spinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,8 +25,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -37,39 +35,19 @@ import java.util.List;
  * Use the {@link MainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    //private static final String ARG_PARAM1 = "param1";
-    //private static final String ARG_PARAM2 = "param2";
+   /* private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    //private String mParam1;
-    //private String mParam2;
+    private String mParam1;
+    private String mParam2;
 
+    private OnFragmentInteractionListener mListener;
+*/
     private MovieAdapter mMovieGridAdapter;
-
-    Movie[] movies = {
-            /*new Movie("Suicide Squad",
-                    "http://image.tmdb.org/t/p/w185/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg"),
-            new Movie("Batman v Superman: Dawn of Justice",
-                    "http://image.tmdb.org/t/p/w185/cGOPbv9wA5gEejkUN892JrveARt.jpg"),
-            new Movie("The Legend of Tarzan",
-                    "http://image.tmdb.org/t/p/w185/6FxOPJ9Ysilpq0IgkrMJ7PubFhq.jpg"),
-            new Movie("Jason Bourne",
-                    "http://image.tmdb.org/t/p/w185/lFSSLTlFozwpaGlO31OoUeirBgQ.jpg"),*/
-            new Movie("Star Trek Beyond",
-                    "http://image.tmdb.org/t/p/w185/ghL4ub6vwbYShlqCFHpoIRwx2sm.jpg"),
-            new Movie("Mad Max: Fury Road",
-                    "http://image.tmdb.org/t/p/w185/kqjL17yufvn9OVLyXYpvtyrFfak.jpg"),
-            new Movie("Interstellar",
-                    "http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"),
-            new Movie("The Boy Next Door",
-                    "http://image.tmdb.org/t/p/w185/h28t2JNNGrZx0fIuAw8aHQFhIxR.jpg"),
-            new Movie("Jurassic World",
-                    "http://image.tmdb.org/t/p/w185/jjBgi2r5cRt36xF6iNUEhzscEcb.jpg")
-    };
-    //private OnFragmentInteractionListener mListener;
 
     public MainFragment() {
         // Required empty public constructor
@@ -80,32 +58,43 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
         mMovieGridAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         GridView movieGridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         movieGridView.setAdapter(mMovieGridAdapter);
 
+        initializeSpinner(rootView);
+
         return rootView;
     }
 
-    private void updateMovieList() {
-        new FetchMoviesTask().execute();
-
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        if (pos == 0) {
+            new FetchMoviesTask().execute("popular");
+        } else if (pos == 1) {
+            new FetchMoviesTask().execute("top_rated");
+        }
     }
 
+    public void onNothingSelected(AdapterView<?> parent) {}
+
+    private void updateMovieList() {
+        new FetchMoviesTask().execute();
+    }
+/*
     @Override
     public void onStart() {
         super.onStart();
-        updateMovieList();
-    }
+        //updateMovieList();
+        //new FetchMoviesTask().execute("popular");
+    }*/
 
-    public class FetchMoviesTask extends AsyncTask<Void, Void, Movie[]> {
+    public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
         @Override
-        protected Movie[] doInBackground(Void... voids) {
+        protected Movie[] doInBackground(String... sortOptions) {
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -115,7 +104,7 @@ public class MainFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieDataJsonStr = null;
 
-            String sortBy = "top_rated";
+            String sortBy = sortOptions[0];
             String id = getString(R.string.movie_api_key);
 
             int numMovies = 9;
@@ -246,7 +235,14 @@ public class MainFragment extends Fragment {
         }
     }
 
-
+    private void initializeSpinner(View rootView) {
+        Spinner sortSpinner = (Spinner) rootView.findViewById(R.id.sort_by_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                getActivity(), R.array.sort_by_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(adapter);
+        sortSpinner.setOnItemSelectedListener(this);
+    }
 
     /////////////////////
     //DEFAULT
@@ -259,8 +255,8 @@ public class MainFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment MainFragment.
      */
-    /* TODO: Rename and change types and number of parameters
-    public static MainFragment newInstance(String param1, String param2) {
+    //TODO: Rename and change types and number of parameters
+    /*public static MainFragment newInstance(String param1, String param2) {
         MainFragment fragment = new MainFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
@@ -311,8 +307,8 @@ public class MainFragment extends Fragment {
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
-     *//*
-    public interface OnFragmentInteractionListener {
+     */
+    /*public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }*/

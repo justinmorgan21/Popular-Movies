@@ -3,16 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.jamoogy.popular_movies.MainActivity$MainFragment">
-    <Spinner
-        android:id="@+id/sort_by_options"
+    <LinearLayout
+        android:id="@+id/sort_by_header"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_spinner_text"
+            android:padding="8dp"
+            android:textColor="@color/colorPrimaryDark"/>
+
+        <Spinner
+            android:id="@+id/sort_by_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/spinner_background"/>
+    </LinearLayout>
 
     <GridView
         android:id="@+id/gridview_movies"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/sort_by_options"
+        android:layout_below="@id/sort_by_header"
         android:numColumns="3" />
 
 </RelativeLayout>
