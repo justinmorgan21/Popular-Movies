@@ -8,14 +8,21 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jamoogy.popular_movies.MainActivity">
+    <Spinner
+        android:id="@+id/sort_by_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sort_by_options"
+        android:id="@+id/fragment_container">
 
-<ScrollView
-android:layout_width="match_parent"
-android:layout_height="wrap_content">
-
+    </FrameLayout>
+<!--
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/grid_layout"
+    android:id="@+id/grid_posters"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
@@ -68,6 +75,5 @@ android:layout_height="wrap_content">
         android:layout_width="wrap_content"
         android:padding="8dp"/>
 
-</GridLayout>
-</ScrollView>
+</GridLayout> -->
 </RelativeLayout>
