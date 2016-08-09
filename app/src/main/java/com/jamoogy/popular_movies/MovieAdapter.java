@@ -14,6 +14,7 @@ import java.util.List;
 
 /**
  * Created by jmorgan on 8/7/2016.
+ * Custom adapter used to define how Movie objects will be displayed in a ListView
  */
 public class MovieAdapter extends ArrayAdapter<Movie> {
     public MovieAdapter(Activity context, List<Movie> movies) {

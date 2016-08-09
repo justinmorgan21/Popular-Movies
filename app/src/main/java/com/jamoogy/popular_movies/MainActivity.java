@@ -3,7 +3,10 @@ package com.jamoogy.popular_movies;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {//implements MainFragment.OnFragmentInteractionListener{
+/**
+ * Adds MainFragment for all main functionality.
+ */
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,9 +18,4 @@ public class MainActivity extends AppCompatActivity {//implements MainFragment.O
                     .commit();
         }
     }
-/*
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }*/
 }

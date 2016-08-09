@@ -29,27 +29,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MainFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MainFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Provides all functionality for the MainActivity.  Handles UI for sort options and grid view
+ * of movies.
  */
 public class MainFragment extends Fragment implements AdapterView.OnItemSelectedListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-   /* private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-*/
+    // Custom Adapter object that holds definitions for how to place Movie objects in the grid.
     private MovieAdapter mMovieGridAdapter;
 
     public MainFragment() {
@@ -59,22 +45,28 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment and set the root to the inflated view
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        // Create an instance of the custom MovieAdapter with the mainActivity context and empty list
         mMovieGridAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         GridView movieGridView = (GridView) rootView.findViewById(R.id.gridview_movies);
+
+        // Set the adapter for the main movie grid
         movieGridView.setAdapter(mMovieGridAdapter);
 
+        // Set up the spinner for selecting sort option
         initializeSpinner(rootView);
 
+        // Define the intent to start the DetailActivity when a movie poster is clicked, passing
+        // the Movie object represented by the poster as an extra.
         movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
                 Movie movieAtPos = mMovieGridAdapter.getItem(pos);
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("EXTRA_MOVIE", movieAtPos);
-
+                        .putExtra(getString(R.string.EXTRA_MOVIE), movieAtPos);
                 startActivity(detailIntent);
             }
         });
@@ -84,31 +76,30 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         if (pos == 0) {
-            new FetchMoviesTask().execute("popular");
+            new FetchMoviesTask().execute(getString(R.string.sort_popular));
         } else if (pos == 1) {
-            new FetchMoviesTask().execute("top_rated");
+            new FetchMoviesTask().execute(getString(R.string.sort_rating));
         }
     }
 
+    // Required for OnItemSelectedListener interface
     public void onNothingSelected(AdapterView<?> parent) {}
 
-    private void updateMovieList() {
-        new FetchMoviesTask().execute();
-    }
-/*
-    @Override
-    public void onStart() {
-        super.onStart();
-        //updateMovieList();
-        //new FetchMoviesTask().execute("popular");
-    }*/
-
+    /**
+     * Custom async task that takes in the sort option for the grid and fills the grid adapter.
+     */
     public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
+        /**
+         * Takes in a single element String array representing the user-selected sort option for the grid.
+         * Sets up the URL necessary and queries The Movie DB for a JSON formatted string containing data
+         * for a selection of movies.  The JSON string is parsed to create an array of Movie objects which
+         * is returned.
+         */
         @Override
-        protected Movie[] doInBackground(String... sortOptions) {
+        protected Movie[] doInBackground(String... sortOption) {
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -118,27 +109,25 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             // Will contain the raw JSON response as a string.
             String movieDataJsonStr = null;
 
-            String sortBy = sortOptions[0];
-            String id = getString(R.string.movie_api_key);
-
-            int numMovies = 9;
+            final String SORT_BY = sortOption[0];
+            final String ID = getString(R.string.movie_api_key);
 
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
+                // Construct the URL for The Movie DB query
+                // Possible parameters are avaiable at The Movie DB's API page, at
+                // https://www.themoviedb.org/documentation/api
 
-                final String FORECAST_BASE_URL =
-                        "http://api.themoviedb.org/3/movie/" + sortBy + "?";
+                final String TMDB_MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
+                final String BASE_URL_WITH_SORT = TMDB_MOVIE_BASE_URL + SORT_BY + "?";
                 final String ID_PARAM = "api_key";
 
-                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(ID_PARAM, id)
+                Uri builtUri = Uri.parse(BASE_URL_WITH_SORT).buildUpon()
+                        .appendQueryParameter(ID_PARAM, ID)
                         .build();
 
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG, "Built Uri: " + builtUri.toString());
-                // Create the request to OpenWeatherMap, and open the connection
+                // Create the request to TheMovieDB, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -170,7 +159,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
+                // If the code didn't successfully get the movie data, there's no point in attemping
                 // to parse it.
                 return null;
             } finally {
@@ -187,8 +176,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             }
 
             try {
-                Movie[] moviesResultArray = getMovieDataFromJson(movieDataJsonStr, numMovies);
-                return moviesResultArray;
+                return getMovieDataFromJson(movieDataJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
@@ -197,6 +185,10 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             return null;
         }
 
+        /**
+         * Clear the adapter and fill it with the Movie objects contained in the array parameter
+         * @param movies
+         */
         @Override
         protected void onPostExecute(Movie[] movies) {
             mMovieGridAdapter.clear();
@@ -208,13 +200,10 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         }
 
         /**
-         * Take the String representing the complete forecast in JSON Format and
-         * pull out the data we need to construct the Strings needed for the wireframes.
-         *
-         * Fortunately parsing is easy:  constructor takes the JSON string and converts it
-         * into an Object hierarchy for us.
+         * Take the String representing a long sequence of movie data in JSON Format and
+         * pull out the data we need to construct the Movie objects for the grid adapter.
          */
-        private Movie[] getMovieDataFromJson(String movieDataJsonStr, int numMovies)
+        private Movie[] getMovieDataFromJson(String movieDataJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
@@ -225,32 +214,23 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             final String TMDB_SYNOPSIS = "overview";
             final String TMDB_RATING = "vote_average";
             final String TMDB_RELEASE = "release_date";
+            final String TMDB_BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w500";
 
             JSONObject movieDataJson = new JSONObject(movieDataJsonStr);
             JSONArray moviesArray = movieDataJson.getJSONArray(TMDB_RESULTS);
 
-            Movie[] resultMovies = new Movie[numMovies];
-            for(int i = 0; i < resultMovies.length; i++) {
-                // give a new Movie object its contents necessary for creation
-                String title;
-                String poster_path;
-                String synopsis;
-                double rating;
-                String releaseDate;
-                String thumbnail;
-
-                // Get the JSON object representing the movie
+            Movie[] resultMovies = new Movie[moviesArray.length()];
+            for(int i = 0; i < moviesArray.length(); i++) {
+                // Get the JSON object representing a single movie
                 JSONObject movieFromArray = moviesArray.getJSONObject(i);
 
-                // Temperatures are in a child object called "temp".  Try not to name variables
-                // "temp" when working with temperature.  It confuses everybody.
-                //JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-                title = movieFromArray.getString(TMDB_TITLE);
-                poster_path = "http://image.tmdb.org/t/p/w500" + movieFromArray.getString(TMDB_POSTER);
-                synopsis = movieFromArray.getString(TMDB_SYNOPSIS);
-                rating = movieFromArray.getDouble(TMDB_RATING);
-                releaseDate = formatDate(movieFromArray.getString(TMDB_RELEASE));
-                thumbnail = "http://image.tmdb.org/t/p/w500" + movieFromArray.getString(TMDB_THUMBNAIL);
+                // Extract individual data for the movie and include it in the array
+                String title = movieFromArray.getString(TMDB_TITLE);
+                String poster_path = TMDB_BASE_IMAGE_URL + movieFromArray.getString(TMDB_POSTER);
+                String synopsis = movieFromArray.getString(TMDB_SYNOPSIS);
+                double rating = movieFromArray.getDouble(TMDB_RATING);
+                String releaseDate = formatDate(movieFromArray.getString(TMDB_RELEASE));
+                String thumbnail = TMDB_BASE_IMAGE_URL + movieFromArray.getString(TMDB_THUMBNAIL);
 
                 resultMovies[i] = new Movie(title, poster_path, synopsis, rating, releaseDate, thumbnail);
             }
@@ -258,6 +238,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         }
     }
 
+    /**
+     * Take in the date formatted by TheMovieDB as yyyy-MM-dd and reformat as MMM dd, yyyy
+     * to be used by the textview for movie release date.
+     * @param TMDB_date date format example: 2013-03-24
+     * @return date format example: Mar 24, 2013
+     */
     private String formatDate(String TMDB_date) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try {
@@ -268,6 +254,10 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         }
     }
 
+    /**
+     * Set up the spinner with two options for movie sorting, popular and top_rated
+     * @param rootView
+     */
     private void initializeSpinner(View rootView) {
         Spinner sortSpinner = (Spinner) rootView.findViewById(R.id.sort_by_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -276,73 +266,4 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         sortSpinner.setAdapter(adapter);
         sortSpinner.setOnItemSelectedListener(this);
     }
-
-    /////////////////////
-    //DEFAULT
-    /////////////////////
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MainFragment.
-     */
-    //TODO: Rename and change types and number of parameters
-    /*public static MainFragment newInstance(String param1, String param2) {
-        MainFragment fragment = new MainFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    /*public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }*/
 }
