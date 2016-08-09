@@ -8,4 +8,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="sort_spinner_text">Sort by </string>
 
+    <string name="title_activity_detail">Movie Details</string>
+
 </resources>

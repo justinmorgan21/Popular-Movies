@@ -1,6 +1,6 @@
 package com.jamoogy.popular_movies;
 
-import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,7 +24,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 /**
@@ -64,6 +67,17 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         movieGridView.setAdapter(mMovieGridAdapter);
 
         initializeSpinner(rootView);
+
+        movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                Movie movieAtPos = mMovieGridAdapter.getItem(pos);
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("EXTRA_MOVIE", movieAtPos);
+
+                startActivity(detailIntent);
+            }
+        });
 
         return rootView;
     }
@@ -220,6 +234,10 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
                 // give a new Movie object its contents necessary for creation
                 String title;
                 String poster_path;
+                String synopsis;
+                double rating;
+                String releaseDate;
+                String thumbnail;
 
                 // Get the JSON object representing the movie
                 JSONObject movieFromArray = moviesArray.getJSONObject(i);
@@ -229,9 +247,24 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
                 //JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
                 title = movieFromArray.getString(TMDB_TITLE);
                 poster_path = "http://image.tmdb.org/t/p/w500" + movieFromArray.getString(TMDB_POSTER);
-                resultMovies[i] = new Movie(title, poster_path);
+                synopsis = movieFromArray.getString(TMDB_SYNOPSIS);
+                rating = movieFromArray.getDouble(TMDB_RATING);
+                releaseDate = formatDate(movieFromArray.getString(TMDB_RELEASE));
+                thumbnail = "http://image.tmdb.org/t/p/w500" + movieFromArray.getString(TMDB_THUMBNAIL);
+
+                resultMovies[i] = new Movie(title, poster_path, synopsis, rating, releaseDate, thumbnail);
             }
             return resultMovies;
+        }
+    }
+
+    private String formatDate(String TMDB_date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date = formatter.parse(TMDB_date);
+            return date.toString().substring(4, 10) + ", " + date.toString().substring(23, 28);
+        } catch (ParseException e) {
+            return null;
         }
     }
 
