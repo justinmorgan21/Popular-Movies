@@ -1,6 +1,7 @@
 package com.jamoogy.popular_movies;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -32,6 +33,7 @@ public class DetailFragment extends Fragment {
         if (detailIntent != null && detailIntent.hasExtra(getString(R.string.EXTRA_MOVIE))) {
             // Get the clicked Movie object that was added as an extra to the intent
             Movie detailMovie = (Movie)detailIntent.getSerializableExtra(getString(R.string.EXTRA_MOVIE));
+            Resources resources = getResources();
 
             // Set the poster image
             ImageView detailPoster = (ImageView) rootView.findViewById(R.id.detail_poster);
@@ -44,11 +46,13 @@ public class DetailFragment extends Fragment {
 
             // Set the release date
             TextView detailRelease = (TextView) rootView.findViewById(R.id.detail_release);
-            detailRelease.setText("(" + detailMovie.releaseDate + ")");
+            String releaseDateDisplay = resources.getString(R.string.release_date_display, detailMovie.releaseDate);
+            detailRelease.setText(releaseDateDisplay);
 
             // Set the user rating
             TextView detailRating = (TextView) rootView.findViewById(R.id.detail_rating);
-            detailRating.setText("Rating: " + Double.toString(detailMovie.rating));
+            String ratingDisplay = resources.getString(R.string.rating_display, Double.toString(detailMovie.rating));
+            detailRating.setText(ratingDisplay);
 
             // Set the overview
             TextView detailOverview = (TextView) rootView.findViewById(R.id.detail_synopsis);

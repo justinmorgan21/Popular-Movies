@@ -9,4 +9,7 @@
 
     <string name="title_activity_detail">Movie Details</string>
 
+    <string name="release_date_display">(%1$s)</string>
+    <string name="rating_display">Rating: %1$s</string>
+
 </resources>
