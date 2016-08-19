@@ -1,27 +1,28 @@
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detail_top"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context="com.jamoogy.popular_movies.DetailFragment">
+
+    <ImageView
+        android:id="@+id/detail_poster"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/layout_height_detail_poster"
+        android:layout_weight="1"/>
+
+    <ScrollView
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        tools:context="com.jamoogy.popular_movies.DetailFragment">
-
-        <LinearLayout
-            android:id="@+id/detail_top"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/detail_poster"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/layout_height_detail_poster"
-                android:layout_weight="1"/>
+        android:layout_weight="3">
 
             <LinearLayout
                 android:id="@+id/detail_info"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_weight="3"
+
                 android:paddingTop="@dimen/padding_top_detail_info"
                 android:paddingLeft="@dimen/padding_left_detail_info"
                 android:paddingRight="@dimen/padding_right_detail_info">
@@ -65,5 +66,5 @@
                     android:layout_gravity="center_horizontal"/>
 
             </LinearLayout>
-        </LinearLayout>
     </ScrollView>
+</LinearLayout>
