@@ -13,31 +13,33 @@
             <ImageView
                 android:id="@+id/detail_poster"
                 android:layout_width="0dp"
-                android:layout_height="204dp"
+                android:layout_height="@dimen/layout_height_detail_poster"
                 android:layout_weight="1"/>
 
             <LinearLayout
+                android:id="@+id/detail_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_weight="3"
-                android:paddingTop="30dp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
+                android:paddingTop="@dimen/padding_top_detail_info"
+                android:paddingLeft="@dimen/padding_left_detail_info"
+                android:paddingRight="@dimen/padding_right_detail_info">
 
                 <TextView
                     android:id="@+id/detail_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="8dp"
-                    android:textSize="16sp"
+                    android:paddingBottom="@dimen/padding_bottom_detail_title"
+                    android:textSize="@dimen/text_size_detail_title"
                     android:textStyle="bold"/>
 
                 <LinearLayout
+                    android:id="@+id/detail_release_and_rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingBottom="8dp">
+                    android:paddingBottom="@dimen/padding_bottom_detail_release_and_rating">
 
                     <TextView
                         android:id="@+id/detail_release"
@@ -47,14 +49,14 @@
                         android:id="@+id/detail_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="32dp"/>
+                        android:paddingLeft="@dimen/padding_left_detail_rating"/>
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/detail_synopsis"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="8dp"/>
+                    android:paddingBottom="@dimen/padding_bottom_detail_synopsis"/>
 
                 <ImageView
                     android:id="@+id/detail_backdrop"
