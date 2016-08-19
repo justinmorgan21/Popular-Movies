@@ -32,7 +32,7 @@ public class DetailFragment extends Fragment {
         Intent detailIntent = getActivity().getIntent();
         if (detailIntent != null && detailIntent.hasExtra(getString(R.string.EXTRA_MOVIE))) {
             // Get the clicked Movie object that was added as an extra to the intent
-            Movie detailMovie = (Movie)detailIntent.getSerializableExtra(getString(R.string.EXTRA_MOVIE));
+            Movie detailMovie = (Movie)detailIntent.getParcelableExtra(getString(R.string.EXTRA_MOVIE));
             Resources resources = getResources();
 
             // Set the poster image
