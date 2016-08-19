@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,7 +67,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
                 Movie movieAtPos = mMovieGridAdapter.getItem(pos);
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(getString(R.string.EXTRA_MOVIE), movieAtPos);
+                        .putExtra(getString(R.string.EXTRA_MOVIE), (Parcelable)movieAtPos);
                 startActivity(detailIntent);
             }
         });
