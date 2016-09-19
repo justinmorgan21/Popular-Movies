@@ -59,11 +59,30 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="@dimen/padding_bottom_detail_synopsis"/>
 
-                <ImageView
+                <!--<ImageView
                     android:id="@+id/detail_backdrop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"/>
+                    android:layout_gravity="center_horizontal"/>-->
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:text="Movie Trailers"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/trailer_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Play Trailer"/>
 
             </LinearLayout>
     </ScrollView>
