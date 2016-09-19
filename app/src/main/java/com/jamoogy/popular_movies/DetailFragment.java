@@ -2,6 +2,7 @@ package com.jamoogy.popular_movies;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -65,17 +66,33 @@ public class DetailFragment extends Fragment {
             detailOverview.setText(mDetailMovie.synopsis);
 
             // Set the backdrop
-//            ImageView detailBackdrop = (ImageView) rootView.findViewById(R.id.detail_backdrop);
-//            Picasso.with(getContext()).load(detailMovie.backdrop)
-//                    .into(detailBackdrop);
+            ImageView detailBackdrop = (ImageView) rootView.findViewById(R.id.detail_backdrop);
+            Picasso.with(getContext()).load(mDetailMovie.backdrop)
+                    .into(detailBackdrop);
 
-            Button detailTrailerButton = (Button) rootView.findViewById(R.id.trailer_button);
-            
-
-            String s = "" + mDetailMovie.trailer_references[0];
-
-
+            Button detailTrailerButton1 = (Button) rootView.findViewById(R.id.trailer_button_1);
+            detailTrailerButton1.setOnClickListener(btnListener);
+            Button detailTrailerButton2 = (Button) rootView.findViewById(R.id.trailer_button_2);
+            detailTrailerButton2.setOnClickListener(btnListener);
         }
         return rootView;
     }
+
+    private View.OnClickListener btnListener = new View.OnClickListener() {
+        public void onClick(View button) {
+            String url = null;
+            switch(button.getId()) {
+                case(R.id.trailer_button_1):
+                    url = mDetailMovie.trailer_references[0];
+                    break;
+                case(R.id.trailer_button_2):
+                    url = mDetailMovie.trailer_references[1];
+                    break;
+            }
+
+            Intent trailerIntent = new Intent(Intent.ACTION_VIEW);
+            trailerIntent.setData(Uri.parse(url));
+            startActivity(trailerIntent);
+        }
+    };
 }

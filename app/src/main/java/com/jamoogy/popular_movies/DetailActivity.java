@@ -1,7 +1,7 @@
 package com.jamoogy.popular_movies;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -16,4 +16,9 @@ public class DetailActivity extends AppCompatActivity {
                     .commit();
         }
     }
+
+//    public void playTrailer(View view) {
+//        Button trailer = (Button) findViewById(R.id.trailer_button);
+//        trailer.setText("Do it!");
+//    }
 }
