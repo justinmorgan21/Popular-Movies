@@ -31,13 +31,23 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
                     false);
         }
 
-        ImageView poster = (ImageView) convertView.findViewById(R.id.grid_item_movie_poster_imageview);
-        Picasso.with(getContext()).load(movie.poster_reference)
-                .into(poster);
+        ViewHolder viewHolder = new ViewHolder(convertView);
 
-        TextView name = (TextView) convertView.findViewById(R.id.grid_item_movie_name_textview);
-        name.setText(movie.title);
+        Picasso.with(getContext()).load(movie.poster_reference)
+                .into(viewHolder.posterView);
+
+        viewHolder.nameView.setText(movie.title);
 
         return convertView;
+    }
+
+    private static class ViewHolder {
+        public final ImageView posterView;
+        public final TextView nameView;
+
+        public ViewHolder(View view) {
+            posterView = (ImageView) view.findViewById(R.id.grid_item_movie_poster_imageview);
+            nameView = (TextView) view.findViewById(R.id.grid_item_movie_name_textview);
+        }
     }
 }
