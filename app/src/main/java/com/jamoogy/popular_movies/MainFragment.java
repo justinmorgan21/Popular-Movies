@@ -25,6 +25,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     private int mPosition = GridView.INVALID_POSITION;
     private static final String SELECTED_KEY = "grid_position";
     private GridView mGridView;
+    private int mSpinnerPosition = 0;
 
     public MainFragment() {
         // Required empty public constructor
@@ -37,9 +38,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
 
-        if (mPosition != GridView.INVALID_POSITION) {
-            mGridView.smoothScrollToPosition(mPosition);
-        }
+
     }
 
     @Override
@@ -65,8 +64,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
                 Movie movieAtPos = mMovieGridAdapter.getItem(pos);
-//                FetchTrailersTask trailersTask = new FetchTrailersTask(getContext());
-//                trailersTask.execute(movieAtPos);
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
                         .putExtra(getString(R.string.EXTRA_MOVIE), (Parcelable)movieAtPos);
                 startActivity(detailIntent);
@@ -74,23 +71,33 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             }
         });
 
-//        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-//            mPosition = savedInstanceState.getInt(SELECTED_KEY);
-//        }
-//
-//        if (mPosition != GridView.INVALID_POSITION) {
-//            mGridView.smoothScrollToPosition(mPosition);
-//        }
-
         return rootView;
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovies();
+    }
+
+    public void updateMovies() {
         FetchMoviesTask moviesTask = new FetchMoviesTask(getActivity(), mMovieGridAdapter);
-        if (pos == 0) {
-            moviesTask.execute(getString(R.string.sort_popular));
-        } else if (pos == 1) {
-            moviesTask.execute(getString(R.string.sort_rating));
+        String spinner_option_selected = null;
+        switch (mSpinnerPosition) {
+            case 0:
+                spinner_option_selected = getString(R.string.sort_popular);
+                break;
+            case 1:
+                spinner_option_selected = getString(R.string.sort_rating);
+                break;
+        }
+        moviesTask.execute(spinner_option_selected);
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        if (mSpinnerPosition != pos) {
+            mSpinnerPosition = pos;
+            updateMovies();
         }
     }
 
@@ -99,6 +106,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
 
     @Override
     public void onSaveInstanceState(Bundle out) {
+        mPosition = mGridView.getFirstVisiblePosition();
         if (mPosition != GridView.INVALID_POSITION) {
             out.putInt(SELECTED_KEY, mPosition);
         }
