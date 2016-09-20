@@ -16,9 +16,4 @@ public class DetailActivity extends AppCompatActivity {
                     .commit();
         }
     }
-
-//    public void playTrailer(View view) {
-//        Button trailer = (Button) findViewById(R.id.trailer_button);
-//        trailer.setText("Do it!");
-//    }
 }

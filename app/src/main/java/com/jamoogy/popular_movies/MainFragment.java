@@ -22,9 +22,24 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
 
     // Custom Adapter object that holds definitions for how to place Movie objects in the grid.
     private MovieAdapter mMovieGridAdapter;
+    private int mPosition = GridView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "grid_position";
+    private GridView mGridView;
 
     public MainFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
+        if (mPosition != GridView.INVALID_POSITION) {
+            mGridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
@@ -36,17 +51,17 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         // Create an instance of the custom MovieAdapter with the mainActivity context and empty list
         mMovieGridAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
-        GridView movieGridView = (GridView) rootView.findViewById(R.id.gridview_movies);
+        mGridView = (GridView) rootView.findViewById(R.id.gridview_movies);
 
         // Set the adapter for the main movie grid
-        movieGridView.setAdapter(mMovieGridAdapter);
+        mGridView.setAdapter(mMovieGridAdapter);
 
         // Set up the spinner for selecting sort option
         initializeSpinner(rootView);
 
         // Define the intent to start the DetailActivity when a movie poster is clicked, passing
         // the Movie object represented by the poster as an extra.
-        movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
                 Movie movieAtPos = mMovieGridAdapter.getItem(pos);
@@ -55,8 +70,17 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
                         .putExtra(getString(R.string.EXTRA_MOVIE), (Parcelable)movieAtPos);
                 startActivity(detailIntent);
+                mPosition = pos;
             }
         });
+
+//        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+//            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+//        }
+//
+//        if (mPosition != GridView.INVALID_POSITION) {
+//            mGridView.smoothScrollToPosition(mPosition);
+//        }
 
         return rootView;
     }
@@ -73,6 +97,13 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     // Required for OnItemSelectedListener interface
     public void onNothingSelected(AdapterView<?> parent) {}
 
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        if (mPosition != GridView.INVALID_POSITION) {
+            out.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(out);
+    }
 
     /**
      * Set up the spinner with two options for movie sorting, popular and top_rated
