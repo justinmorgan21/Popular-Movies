@@ -18,6 +18,7 @@ public class Movie implements Serializable, Parcelable {
     String backdrop;
     int id;
     String[] trailer_references;
+    String[] reviews;
 
     public Movie(String title, String poster_reference, String synopsis, double rating,
                  String release, String backdrop, int id) {//}, String trailer_reference) {
@@ -45,6 +46,7 @@ public class Movie implements Serializable, Parcelable {
         dest.writeString(this.backdrop);
         dest.writeInt(this.id);
         dest.writeStringArray(this.trailer_references);
+        dest.writeStringArray(this.reviews);
     }
 
     protected Movie(Parcel in) {
@@ -55,14 +57,21 @@ public class Movie implements Serializable, Parcelable {
         this.releaseDate = in.readString();
         this.backdrop = in.readString();
         this.id = in.readInt();
-        //in.readStringArray(this.trailer_references);
         this.trailer_references = in.createStringArray();
+        this.reviews = in.createStringArray();
     }
 
     public void setTrailers(String[] urls) {
         trailer_references = new String[urls.length];
         for (int i = 0; i < urls.length; i++) {
             trailer_references[i] = urls[i];
+        }
+    }
+
+    public void setReviews(String[] reviews) {
+        this.reviews = new String[reviews.length];
+        for (int i = 0; i < reviews.length; i++) {
+            this.reviews[i] = reviews[i];
         }
     }
 

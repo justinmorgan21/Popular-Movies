@@ -23,12 +23,12 @@ import java.net.URL;
 /**
  * Custom async task that takes in the detail movie's id and fills the movie trailers.
  */
-public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
+public class FetchReviewsTask extends AsyncTask<Movie, Void, String[]> {
 
-    private final String LOG_TAG = FetchTrailersTask.class.getSimpleName();
+    private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
     private final Context mContext;
 
-    public FetchTrailersTask(Context context) { mContext = context; }
+    public FetchReviewsTask(Context context) { mContext = context; }
     /**
      * Takes in a single element String array representing the user-selected sort option for the grid.
      * Sets up the URL necessary and queries The Movie DB for a JSON formatted string containing data
@@ -41,8 +41,8 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-        String trailerDataJsonStr = null;
-        String[] trailers = null;
+        String reviewDataJsonStr = null;
+        String[] reviews = null;
         // Build themoviedb URL for movie param trailers using id
         URL url = null;
 
@@ -56,10 +56,10 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
             // https://www.themoviedb.org/documentation/api
 
             final String TMDB_MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
-            final String BASE_URL_WITH_MOVIE_ID_AND_VIDEO_PARAMETER = TMDB_MOVIE_BASE_URL + movie.id + "/videos?";
+            final String BASE_URL_WITH_MOVIE_ID_AND_REVIEW_PARAMETER = TMDB_MOVIE_BASE_URL + movie.id + "/reviews?";
             final String ID_PARAM = "api_key";
 
-            Uri builtUri = Uri.parse(BASE_URL_WITH_MOVIE_ID_AND_VIDEO_PARAMETER).buildUpon()
+            Uri builtUri = Uri.parse(BASE_URL_WITH_MOVIE_ID_AND_REVIEW_PARAMETER).buildUpon()
                     .appendQueryParameter(ID_PARAM, ID)
                     .build();
 
@@ -91,9 +91,9 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
                 // Stream was empty.  No point in parsing.
                 return null;
             }
-            trailerDataJsonStr = buffer.toString();
+            reviewDataJsonStr = buffer.toString();
 
-            Log.v(LOG_TAG, trailerDataJsonStr);
+            Log.v(LOG_TAG, reviewDataJsonStr);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -114,36 +114,37 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
         }
 
         try {
-            trailers = getMovieTrailersFromJson(trailerDataJsonStr);
+            reviews = getMovieReviewsFromJson(reviewDataJsonStr);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-        movie.setTrailers(trailers);
+        movie.setReviews(reviews);
         return null;
     }
 
-    private String[] getMovieTrailersFromJson(String trailerDataJsonStr)
+    private String[] getMovieReviewsFromJson(String reviewDataJsonStr)
             throws JSONException {
         // These are the names of the JSON objects that need to be extracted.
         final String TMDB_RESULTS = "results";
-        final String TMDB_KEY = "key";
-        final String YOUTUBE_BASE_TRAILER_URL = "http://www.youtube.com/watch?v=";
+        final String TMDB_AUTHOR = "author";
+        final String TMDB_CONTENT = "content";
 
         //String trailer = TMDB_BASE_TRAILER_URL + movieFromArray.getString()
-        JSONObject trailerDataJson = new JSONObject(trailerDataJsonStr);
-        JSONArray trailersArray = trailerDataJson.getJSONArray(TMDB_RESULTS);
+        JSONObject reviewDataJson = new JSONObject(reviewDataJsonStr);
+        JSONArray reviewsArray = reviewDataJson.getJSONArray(TMDB_RESULTS);
 
-        String[] trailerURLs = new String[trailersArray.length()];
-        for(int i = 0; i < trailersArray.length(); i++) {
+        String[] reviews = new String[reviewsArray.length()];
+        for(int i = 0; i < reviewsArray.length(); i++) {
             // Get the JSON object representing a single movie
-            JSONObject trailerFromArray = trailersArray.getJSONObject(i);
+            JSONObject reviewFromArray = reviewsArray.getJSONObject(i);
 
             // Extract individual data for the movie and include it in the array
-            String trailer_youtube_url_w_key = YOUTUBE_BASE_TRAILER_URL + trailerFromArray.getString(TMDB_KEY);
-
-            trailerURLs[i] = trailer_youtube_url_w_key;
+            String review = "author:" +
+                            reviewFromArray.getString(TMDB_AUTHOR) +
+                             " content:" + reviewFromArray.getString(TMDB_CONTENT);
+            reviews[i] = review;
         }
-        return trailerURLs;
+        return reviews;
     }
 }

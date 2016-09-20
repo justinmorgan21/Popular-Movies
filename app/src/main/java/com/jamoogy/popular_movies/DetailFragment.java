@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -66,14 +67,41 @@ public class DetailFragment extends Fragment {
             detailOverview.setText(mDetailMovie.synopsis);
 
             // Set the backdrop
-            ImageView detailBackdrop = (ImageView) rootView.findViewById(R.id.detail_backdrop);
-            Picasso.with(getContext()).load(mDetailMovie.backdrop)
-                    .into(detailBackdrop);
+//            ImageView detailBackdrop = (ImageView) rootView.findViewById(R.id.detail_backdrop);
+//            Picasso.with(getContext()).load(mDetailMovie.backdrop)
+//                    .into(detailBackdrop);
 
-            Button detailTrailerButton1 = (Button) rootView.findViewById(R.id.trailer_button_1);
+            Button detailTrailerButton1 = (Button) rootView.findViewById(R.id.detail_trailer_button_1);
             detailTrailerButton1.setOnClickListener(btnListener);
-            Button detailTrailerButton2 = (Button) rootView.findViewById(R.id.trailer_button_2);
+            Button detailTrailerButton2 = (Button) rootView.findViewById(R.id.detail_trailer_button_2);
             detailTrailerButton2.setOnClickListener(btnListener);
+
+            if (mDetailMovie.reviews.length > 0) {
+                TextView reviewHeaderTextView = (TextView) rootView.findViewById(R.id.detail_review_header);
+                reviewHeaderTextView.setText("Reviews");
+
+                String review1 = mDetailMovie.reviews[0];
+                int contentStrartIndex = review1.indexOf("content:");
+                String review1Author = review1.substring(7, contentStrartIndex);
+                String review1Content = review1.substring(contentStrartIndex + 8);
+
+                TextView review1AuthorTextView = (TextView) rootView.findViewById(R.id.detail_review_1_author);
+                review1AuthorTextView.setText(review1Author);
+                TextView review1ContentTextView = (TextView) rootView.findViewById(R.id.detail_review_1_content);
+                review1ContentTextView.setText(review1Content);
+
+                if (mDetailMovie.reviews.length > 1) {
+                    String review2 = mDetailMovie.reviews[1];
+                    contentStrartIndex = review2.indexOf("content:");
+                    String review2Author = review2.substring(7, contentStrartIndex);
+                    String review2Content = review2.substring(contentStrartIndex + 8);
+
+                    TextView review2AuthorTextView = (TextView) rootView.findViewById(R.id.detail_review_2_author);
+                    review2AuthorTextView.setText(review2Author);
+                    TextView review2ContentTextView = (TextView) rootView.findViewById(R.id.detail_review_2_content);
+                    review2ContentTextView.setText(review2Content);
+                }
+            }
         }
         return rootView;
     }
@@ -82,17 +110,26 @@ public class DetailFragment extends Fragment {
         public void onClick(View button) {
             String url = null;
             switch(button.getId()) {
-                case(R.id.trailer_button_1):
+                case(R.id.detail_trailer_button_1):
                     url = mDetailMovie.trailer_references[0];
                     break;
-                case(R.id.trailer_button_2):
-                    url = mDetailMovie.trailer_references[1];
+                case(R.id.detail_trailer_button_2):
+                    if (mDetailMovie.trailer_references.length > 1) {
+                        url = mDetailMovie.trailer_references[1];
+                    } else {
+                        Toast.makeText(
+                                getContext(),
+                                "No Trailer",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
                     break;
             }
-
-            Intent trailerIntent = new Intent(Intent.ACTION_VIEW);
-            trailerIntent.setData(Uri.parse(url));
-            startActivity(trailerIntent);
+            if (url != null) {
+                Intent trailerIntent = new Intent(Intent.ACTION_VIEW);
+                trailerIntent.setData(Uri.parse(url));
+                startActivity(trailerIntent);
+            }
         }
     };
 }

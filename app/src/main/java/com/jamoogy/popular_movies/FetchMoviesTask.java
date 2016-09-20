@@ -137,6 +137,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
         if(movies != null) {
             for (Movie movie : movies) {
                 new FetchTrailersTask(mContext).execute(movie);
+                new FetchReviewsTask(mContext).execute(movie);
                 mMovieGridAdapter.add(movie);
             }
         }
