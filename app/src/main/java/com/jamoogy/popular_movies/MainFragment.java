@@ -99,6 +99,10 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
             mSpinnerPosition = pos;
             updateMovies();
         }
+        if (mPosition != GridView.INVALID_POSITION) {
+            mGridView.smoothScrollToPosition(mPosition);
+            //mGridView.setSelection(mPosition);
+        }
     }
 
     // Required for OnItemSelectedListener interface
