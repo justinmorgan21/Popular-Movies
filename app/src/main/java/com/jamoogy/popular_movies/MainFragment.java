@@ -24,6 +24,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     private MovieAdapter mMovieGridAdapter;
     private int mPosition = GridView.INVALID_POSITION;
     private static final String SELECTED_KEY = "grid_position";
+    private static final String SAVED_MOVIE_ARRAY = "saved_movies";
     private GridView mGridView;
     private int mSpinnerPosition = 0;
 
@@ -34,11 +35,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-            mPosition = savedInstanceState.getInt(SELECTED_KEY);
-        }
-
-
     }
 
     @Override
@@ -47,6 +43,15 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         // Inflate the layout for this fragment and set the root to the inflated view
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        Parcelable[] saved_movies = null;
+
+        if (savedInstanceState != null
+                && savedInstanceState.containsKey(SELECTED_KEY)
+                && savedInstanceState.containsKey(SAVED_MOVIE_ARRAY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+            saved_movies = savedInstanceState.getParcelableArray(SAVED_MOVIE_ARRAY);
+        }
+
         // Create an instance of the custom MovieAdapter with the mainActivity context and empty list
         mMovieGridAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
@@ -54,6 +59,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
 
         // Set the adapter for the main movie grid
         mGridView.setAdapter(mMovieGridAdapter);
+        if (saved_movies != null) {
+            for (int i = 0; i < saved_movies.length; i++) {
+                mMovieGridAdapter.add((Movie)saved_movies[i]);
+            }
+        }
 
         // Set up the spinner for selecting sort option
         initializeSpinner(rootView);
@@ -113,6 +123,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         mPosition = mGridView.getFirstVisiblePosition();
         if (mPosition != GridView.INVALID_POSITION) {
             out.putInt(SELECTED_KEY, mPosition);
+            Movie[] movies = new Movie[mMovieGridAdapter.getCount()];
+            for (int i = 0; i < movies.length; i++) {
+                movies[i] = mMovieGridAdapter.getItem(i);
+            }
+            out.putParcelableArray(SAVED_MOVIE_ARRAY, movies);
         }
         super.onSaveInstanceState(out);
     }
