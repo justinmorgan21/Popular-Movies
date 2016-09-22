@@ -154,7 +154,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
         final String TMDB_RESULTS = "results";
         final String TMDB_POSTER = "poster_path";
         final String TMDB_TITLE = "original_title";
-        final String TMDB_THUMBNAIL = "backdrop_path";
+        final String TMDB_BACKDROP = "backdrop_path";
         final String TMDB_SYNOPSIS = "overview";
         final String TMDB_RATING = "vote_average";
         final String TMDB_RELEASE = "release_date";
@@ -171,18 +171,18 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
             // Extract individual data for the movie and include it in the array
             String title = movieFromArray.getString(TMDB_TITLE);
-            String poster_path = TMDB_BASE_IMAGE_URL + movieFromArray.getString(TMDB_POSTER);
+            String poster_url = TMDB_BASE_IMAGE_URL + movieFromArray.getString(TMDB_POSTER);
             String synopsis = movieFromArray.getString(TMDB_SYNOPSIS);
             double rating = movieFromArray.getDouble(TMDB_RATING);
             String releaseDate = formatDate(movieFromArray.getString(TMDB_RELEASE));
-            String thumbnail = TMDB_BASE_IMAGE_URL + movieFromArray.getString(TMDB_THUMBNAIL);
+            String backdrop_url = TMDB_BASE_IMAGE_URL + movieFromArray.getString(TMDB_BACKDROP);
             int id = movieFromArray.getInt(TMDB_ID);
             resultMovies[i] = new Movie(title,
-                    poster_path,
+                    poster_url,
                     synopsis,
                     rating,
                     releaseDate,
-                    thumbnail,
+                    backdrop_url,
                     id);
         }
         return resultMovies;

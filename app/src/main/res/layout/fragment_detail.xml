@@ -65,6 +65,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rating"
+                        android:textSize="16sp"
                         android:paddingBottom="4dp"/>
                     <TextView
                         android:id="@+id/detail_rating"
@@ -72,6 +73,13 @@
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
+
+                    <CheckBox
+                        android:id="@+id/detail_favorite_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:button="@android:drawable/btn_star"
+                        android:layout_margin="8dp"/>
                 </LinearLayout>
 
             </LinearLayout>

@@ -11,24 +11,24 @@ import java.io.Serializable;
  */
 public class Movie implements Serializable, Parcelable {
     String title;
-    String poster_reference;
+    String poster_url;
     String synopsis;
     double rating;
     String releaseDate;
-    String backdrop;
-    int id;
-    String[] trailer_references;
-    String[] reviews;
+    String backdrop_url;
+    int tmdbId;
+    String trailerUrls;  // converted from array to string for database
+    String reviews; // converted from array to string for database
 
     public Movie(String title, String poster_reference, String synopsis, double rating,
                  String release, String backdrop, int id) {//}, String trailer_reference) {
         this.title = title;
-        this.poster_reference = poster_reference;
+        this.poster_url = poster_reference;
         this.synopsis = synopsis;
         this.rating = rating;
         this.releaseDate = release;
-        this.backdrop = backdrop;
-        this.id = id;
+        this.backdrop_url = backdrop;
+        this.tmdbId = id;
     }
 
     @Override
@@ -39,40 +39,34 @@ public class Movie implements Serializable, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.title);
-        dest.writeString(this.poster_reference);
+        dest.writeString(this.poster_url);
         dest.writeString(this.synopsis);
         dest.writeDouble(this.rating);
         dest.writeString(this.releaseDate);
-        dest.writeString(this.backdrop);
-        dest.writeInt(this.id);
-        dest.writeStringArray(this.trailer_references);
-        dest.writeStringArray(this.reviews);
+        dest.writeString(this.backdrop_url);
+        dest.writeInt(this.tmdbId);
+        dest.writeString(this.trailerUrls);
+        dest.writeString(this.reviews);
     }
 
     protected Movie(Parcel in) {
         this.title = in.readString();
-        this.poster_reference = in.readString();
+        this.poster_url = in.readString();
         this.synopsis = in.readString();
         this.rating = in.readDouble();
         this.releaseDate = in.readString();
-        this.backdrop = in.readString();
-        this.id = in.readInt();
-        this.trailer_references = in.createStringArray();
-        this.reviews = in.createStringArray();
+        this.backdrop_url = in.readString();
+        this.tmdbId = in.readInt();
+        this.trailerUrls = in.readString();
+        this.reviews = in.readString();
     }
 
-    public void setTrailers(String[] urls) {
-        trailer_references = new String[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            trailer_references[i] = urls[i];
-        }
+    public void setTrailers(String urls) {
+        this.trailerUrls = urls;
     }
 
-    public void setReviews(String[] reviews) {
-        this.reviews = new String[reviews.length];
-        for (int i = 0; i < reviews.length; i++) {
-            this.reviews[i] = reviews[i];
-        }
+    public void setReviews(String reviews) {
+        this.reviews = reviews;
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

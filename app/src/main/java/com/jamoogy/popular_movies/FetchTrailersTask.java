@@ -23,26 +23,26 @@ import java.net.URL;
 /**
  * Custom async task that takes in the detail movie's id and fills the movie trailers.
  */
-public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
+public class FetchTrailersTask extends AsyncTask<Movie, Void, Void> {
 
     private final String LOG_TAG = FetchTrailersTask.class.getSimpleName();
     private final Context mContext;
 
     public FetchTrailersTask(Context context) { mContext = context; }
     /**
-     * Takes in a single element String array representing the user-selected sort option for the grid.
+     * Takes in a single Movie object.
      * Sets up the URL necessary and queries The Movie DB for a JSON formatted string containing data
-     * for a selection of movies.  The JSON string is parsed to create an array of Movie objects which
-     * is returned.
+     * related to trailers of a movie.  The JSON string is parsed to create an array of trailer urls which
+     * is converted to a string and used to set the param movies' trailers field.
      */
     @Override
-    protected String[] doInBackground(Movie... movies) {
+    protected Void doInBackground(Movie... movies) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String trailerDataJsonStr = null;
-        String[] trailers = null;
+        String trailers = null;
         // Build themoviedb URL for movie param trailers using id
         URL url = null;
 
@@ -56,7 +56,7 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
             // https://www.themoviedb.org/documentation/api
 
             final String TMDB_MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
-            final String BASE_URL_WITH_MOVIE_ID_AND_VIDEO_PARAMETER = TMDB_MOVIE_BASE_URL + movie.id + "/videos?";
+            final String BASE_URL_WITH_MOVIE_ID_AND_VIDEO_PARAMETER = TMDB_MOVIE_BASE_URL + movie.tmdbId + "/videos?";
             final String ID_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(BASE_URL_WITH_MOVIE_ID_AND_VIDEO_PARAMETER).buildUpon()
@@ -123,18 +123,17 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
         return null;
     }
 
-    private String[] getMovieTrailersFromJson(String trailerDataJsonStr)
+    private String getMovieTrailersFromJson(String trailerDataJsonStr)
             throws JSONException {
         // These are the names of the JSON objects that need to be extracted.
         final String TMDB_RESULTS = "results";
         final String TMDB_KEY = "key";
         final String YOUTUBE_BASE_TRAILER_URL = "http://www.youtube.com/watch?v=";
 
-        //String trailer = TMDB_BASE_TRAILER_URL + movieFromArray.getString()
         JSONObject trailerDataJson = new JSONObject(trailerDataJsonStr);
         JSONArray trailersArray = trailerDataJson.getJSONArray(TMDB_RESULTS);
 
-        String[] trailerURLs = new String[trailersArray.length()];
+        String trailers = "";
         for(int i = 0; i < trailersArray.length(); i++) {
             // Get the JSON object representing a single movie
             JSONObject trailerFromArray = trailersArray.getJSONObject(i);
@@ -142,8 +141,12 @@ public class FetchTrailersTask extends AsyncTask<Movie, Void, String[]> {
             // Extract individual data for the movie and include it in the array
             String trailer_youtube_url_w_key = YOUTUBE_BASE_TRAILER_URL + trailerFromArray.getString(TMDB_KEY);
 
-            trailerURLs[i] = trailer_youtube_url_w_key;
+            trailers += trailer_youtube_url_w_key;
+            // add a separator that can be used to split the string later when extracted from database
+            if (i < trailersArray.length() - 1) {
+                trailers += Utility.strSeparator;
+            }
         }
-        return trailerURLs;
+        return trailers;
     }
 }

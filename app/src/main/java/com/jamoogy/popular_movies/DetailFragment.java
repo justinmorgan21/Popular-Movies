@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +46,7 @@ public class DetailFragment extends Fragment {
             //trailersTask.execute(mDetailMovie);
             // Set the poster image
             ImageView detailPoster = (ImageView) rootView.findViewById(R.id.detail_poster);
-            Picasso.with(getContext()).load(mDetailMovie.poster_reference)
+            Picasso.with(getContext()).load(mDetailMovie.poster_url)
                     .into(detailPoster);
 
             // Set the title
@@ -68,33 +69,34 @@ public class DetailFragment extends Fragment {
 
             // Set the backdrop
 //            ImageView detailBackdrop = (ImageView) rootView.findViewById(R.id.detail_backdrop);
-//            Picasso.with(getContext()).load(mDetailMovie.backdrop)
+//            Picasso.with(getContext()).load(mDetailMovie.backdrop_url)
 //                    .into(detailBackdrop);
 
             Button detailTrailerButton1 = (Button) rootView.findViewById(R.id.detail_trailer_button_1);
-            detailTrailerButton1.setOnClickListener(btnListener);
+            detailTrailerButton1.setOnClickListener(trailerBtnListener);
             Button detailTrailerButton2 = (Button) rootView.findViewById(R.id.detail_trailer_button_2);
-            detailTrailerButton2.setOnClickListener(btnListener);
+            detailTrailerButton2.setOnClickListener(trailerBtnListener);
 
-            if (mDetailMovie.reviews.length > 0) {
+            String[] reviewsArray = convertStringToArray(mDetailMovie.reviews);
+            if (reviewsArray.length > 0) {
                 TextView reviewHeaderTextView = (TextView) rootView.findViewById(R.id.detail_review_header);
                 reviewHeaderTextView.setText("Reviews");
 
-                String review1 = mDetailMovie.reviews[0];
-                int contentStrartIndex = review1.indexOf("content:");
-                String review1Author = review1.substring(7, contentStrartIndex);
-                String review1Content = review1.substring(contentStrartIndex + 8);
+                String review1 = reviewsArray[0];
+                int contentStartIndex = review1.indexOf("content:");
+                String review1Author = review1.substring(7, contentStartIndex);
+                String review1Content = review1.substring(contentStartIndex + 8);
 
                 TextView review1AuthorTextView = (TextView) rootView.findViewById(R.id.detail_review_1_author);
                 review1AuthorTextView.setText(review1Author);
                 TextView review1ContentTextView = (TextView) rootView.findViewById(R.id.detail_review_1_content);
                 review1ContentTextView.setText(review1Content);
 
-                if (mDetailMovie.reviews.length > 1) {
-                    String review2 = mDetailMovie.reviews[1];
-                    contentStrartIndex = review2.indexOf("content:");
-                    String review2Author = review2.substring(7, contentStrartIndex);
-                    String review2Content = review2.substring(contentStrartIndex + 8);
+                if (reviewsArray.length > 1) {
+                    String review2 = reviewsArray[1];
+                    contentStartIndex = review2.indexOf("content:");
+                    String review2Author = review2.substring(7, contentStartIndex);
+                    String review2Content = review2.substring(contentStartIndex + 8);
 
                     TextView review2AuthorTextView = (TextView) rootView.findViewById(R.id.detail_review_2_author);
                     review2AuthorTextView.setText(review2Author);
@@ -102,20 +104,34 @@ public class DetailFragment extends Fragment {
                     review2ContentTextView.setText(review2Content);
                 }
             }
+
+            CheckBox favoriteButton = (CheckBox) rootView.findViewById(R.id.detail_favorite_button);
+            favoriteButton.setOnClickListener(favBtnListener);
+
         }
         return rootView;
     }
 
-    private View.OnClickListener btnListener = new View.OnClickListener() {
+    private View.OnClickListener favBtnListener = new View.OnClickListener() {
+        public void onClick(View button) {
+            CheckBox favButton = (CheckBox) button;
+            favButton.setChecked(true);
+            // insert movie into favorites database
+            
+        }
+    };
+
+    private View.OnClickListener trailerBtnListener = new View.OnClickListener() {
         public void onClick(View button) {
             String url = null;
+            String trailersArray[] = convertStringToArray(mDetailMovie.trailerUrls);
             switch(button.getId()) {
                 case(R.id.detail_trailer_button_1):
-                    url = mDetailMovie.trailer_references[0];
+                    url = trailersArray[0];
                     break;
                 case(R.id.detail_trailer_button_2):
-                    if (mDetailMovie.trailer_references.length > 1) {
-                        url = mDetailMovie.trailer_references[1];
+                    if (trailersArray.length > 1) {
+                        url = trailersArray[1];
                     } else {
                         Toast.makeText(
                                 getContext(),
@@ -132,4 +148,10 @@ public class DetailFragment extends Fragment {
             }
         }
     };
+
+    private String[] convertStringToArray(String str) {
+        if (str.length() == 0) { return new String[0]; }
+        String[] result = str.split(Utility.strSeparator);
+        return result;
+    }
 }

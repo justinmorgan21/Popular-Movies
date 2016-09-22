@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * Provides all functionality for the MainActivity.  Handles UI for sort options and grid view
  * of movies.
  */
-public class MainFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class MainFragment extends Fragment implements AdapterView.OnItemSelectedListener {//}, LoaderManager.LoaderCallbacks<Cursor> {
 
     // Custom Adapter object that holds definitions for how to place Movie objects in the grid.
     private MovieAdapter mMovieGridAdapter;
@@ -26,7 +26,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     private static final String SELECTED_KEY = "grid_position";
     private static final String SAVED_MOVIE_ARRAY = "saved_movies";
     private GridView mGridView;
-    private int mSpinnerPosition = 0;
+    private static final int POPULAR = 0;
+    private static final int TOP_RATED = 1;
+    private static final int FAVORITES = 2;
+    private int mSpinnerPosition;
+    private static final int MOVIE_LOADER = 0;
 
     public MainFragment() {
         // Required empty public constructor
@@ -91,17 +95,23 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     }
 
     public void updateMovies() {
-        FetchMoviesTask moviesTask = new FetchMoviesTask(getActivity(), mMovieGridAdapter);
-        String spinner_option_selected = null;
         switch (mSpinnerPosition) {
-            case 0:
-                spinner_option_selected = getString(R.string.sort_popular);
+            case POPULAR:
+                // reload adapter with popular movies
+                new FetchMoviesTask(getActivity(), mMovieGridAdapter)
+                        .execute(getString(R.string.sort_popular));
                 break;
-            case 1:
-                spinner_option_selected = getString(R.string.sort_rating);
+            case TOP_RATED:
+                // reload adapter with top rated movies
+                new FetchMoviesTask(getActivity(), mMovieGridAdapter)
+                        .execute(getString(R.string.sort_rating));
+                break;
+            case FAVORITES:
+                // clear adapter, and query favorite database to add Movies back
+
                 break;
         }
-        moviesTask.execute(spinner_option_selected);
+        //getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -111,7 +121,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         }
         if (mPosition != GridView.INVALID_POSITION) {
             mGridView.smoothScrollToPosition(mPosition);
-            //mGridView.setSelection(mPosition);
         }
     }
 
@@ -144,4 +153,32 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         sortSpinner.setAdapter(adapter);
         sortSpinner.setOnItemSelectedListener(this);
     }
+
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        // based on spinner position, use movie table w/ top_rated
+////        String locationSetting = Utility.getPreferredLocation(getActivity());
+////
+////        // Sort order:  Ascending, by date.
+////        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+////        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+////                locationSetting, System.currentTimeMillis());
+//
+//        //return new CursorLoader(getActivity(), weatherForLocationUri, FORECAST_COLUMNS, null, null, sortOrder);
+//        return new CursorLoader(getContext(), null, null, null, null, null);
+//    }
+//
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+////        mForecastAdapter.swapCursor(cursor);
+////
+////        if (mPosition != ListView.INVALID_POSITION) {
+////            mListView.smoothScrollToPosition(mPosition);
+////        }
+//    }
+//
+//    public void onLoaderReset(Loader loader) {
+//        //mForecastAdapter.swapCursor(null);
+//    }
+
+
+
 }

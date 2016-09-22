@@ -21,29 +21,29 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Custom async task that takes in the detail movie's id and fills the movie trailers.
+ * Custom async task that takes in the detail movie's id and fills the movie reviews.
  */
-public class FetchReviewsTask extends AsyncTask<Movie, Void, String[]> {
+public class FetchReviewsTask extends AsyncTask<Movie, Void, Void> {
 
     private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
     private final Context mContext;
 
     public FetchReviewsTask(Context context) { mContext = context; }
     /**
-     * Takes in a single element String array representing the user-selected sort option for the grid.
+     * Takes in a single Movie object.
      * Sets up the URL necessary and queries The Movie DB for a JSON formatted string containing data
-     * for a selection of movies.  The JSON string is parsed to create an array of Movie objects which
-     * is returned.
+     * related to reviews of a movie.  The JSON string is parsed to create an array of reviews which
+     * is converted to a string and used to set the param movies' reviews field.
      */
     @Override
-    protected String[] doInBackground(Movie... movies) {
+    protected Void doInBackground(Movie... movies) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String reviewDataJsonStr = null;
-        String[] reviews = null;
-        // Build themoviedb URL for movie param trailers using id
+        String reviews = null;
+        // Build themoviedb URL for movie param reviews using id
         URL url = null;
 
         Movie movie = movies[0];
@@ -56,7 +56,7 @@ public class FetchReviewsTask extends AsyncTask<Movie, Void, String[]> {
             // https://www.themoviedb.org/documentation/api
 
             final String TMDB_MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
-            final String BASE_URL_WITH_MOVIE_ID_AND_REVIEW_PARAMETER = TMDB_MOVIE_BASE_URL + movie.id + "/reviews?";
+            final String BASE_URL_WITH_MOVIE_ID_AND_REVIEW_PARAMETER = TMDB_MOVIE_BASE_URL + movie.tmdbId + "/reviews?";
             final String ID_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(BASE_URL_WITH_MOVIE_ID_AND_REVIEW_PARAMETER).buildUpon()
@@ -123,27 +123,30 @@ public class FetchReviewsTask extends AsyncTask<Movie, Void, String[]> {
         return null;
     }
 
-    private String[] getMovieReviewsFromJson(String reviewDataJsonStr)
+    private String getMovieReviewsFromJson(String reviewDataJsonStr)
             throws JSONException {
         // These are the names of the JSON objects that need to be extracted.
         final String TMDB_RESULTS = "results";
         final String TMDB_AUTHOR = "author";
         final String TMDB_CONTENT = "content";
 
-        //String trailer = TMDB_BASE_TRAILER_URL + movieFromArray.getString()
         JSONObject reviewDataJson = new JSONObject(reviewDataJsonStr);
         JSONArray reviewsArray = reviewDataJson.getJSONArray(TMDB_RESULTS);
 
-        String[] reviews = new String[reviewsArray.length()];
+        String reviews = "";
         for(int i = 0; i < reviewsArray.length(); i++) {
             // Get the JSON object representing a single movie
             JSONObject reviewFromArray = reviewsArray.getJSONObject(i);
 
             // Extract individual data for the movie and include it in the array
-            String review = "author:" +
+            reviews += "author:" +
                             reviewFromArray.getString(TMDB_AUTHOR) +
                              " content:" + reviewFromArray.getString(TMDB_CONTENT);
-            reviews[i] = review;
+
+            // add a separator that can be used to split the string later when extracted from database
+            if (i < reviewsArray.length() - 1) {
+                reviews += Utility.strSeparator;
+            }
         }
         return reviews;
     }

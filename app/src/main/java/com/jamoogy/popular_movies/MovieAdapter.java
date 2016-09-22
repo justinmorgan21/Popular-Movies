@@ -33,7 +33,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
 
         ViewHolder viewHolder = new ViewHolder(convertView);
 
-        Picasso.with(getContext()).load(movie.poster_reference)
+        Picasso.with(getContext()).load(movie.poster_url)
                 .into(viewHolder.posterView);
 
         viewHolder.nameView.setText(movie.title);
