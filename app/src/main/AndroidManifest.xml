@@ -26,6 +26,12 @@
                 android:value="com.jamoogy.popular_movies.MainActivity"/>
 
         </activity>
+        <provider
+            android:authorities="com.jamoogy.popular_movies"
+            android:name=".data.MovieProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.jamoogy.ACCESS_DATABASE"/>
     </application>
 
 </manifest>

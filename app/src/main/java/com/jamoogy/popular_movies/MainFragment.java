@@ -1,6 +1,7 @@
 package com.jamoogy.popular_movies;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.Spinner;
+
+import com.jamoogy.popular_movies.data.MovieContract;
 
 import java.util.ArrayList;
 
@@ -30,7 +33,30 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
     private static final int TOP_RATED = 1;
     private static final int FAVORITES = 2;
     private int mSpinnerPosition;
-    private static final int MOVIE_LOADER = 0;
+
+    private static final String[] MOVIE_COLUMNS = {
+            MovieContract.FavoriteEntry._ID,
+            MovieContract.FavoriteEntry.COLUMN_TITLE,
+            MovieContract.FavoriteEntry.COLUMN_POSTER_URL,
+            MovieContract.FavoriteEntry.COLUMN_SYNOPSIS,
+            MovieContract.FavoriteEntry.COLUMN_RATING,
+            MovieContract.FavoriteEntry.COLUMN_RELEASE_DATE,
+            MovieContract.FavoriteEntry.COLUMN_BACKDROP_URL,
+            MovieContract.FavoriteEntry.COLUMN_TMDB_MOVIE_ID,
+            MovieContract.FavoriteEntry.COLUMN_TRAILER_URLS,
+            MovieContract.FavoriteEntry.COLUMN_REVIEWS
+    };
+
+    static final int COL_MOVIE_ID = 0;
+    static final int COL_MOVIE_TITLE  = 1;
+    static final int COL_MOVIE_POSTER = 2;
+    static final int COL_MOVIE_SYNOPSIS = 3;
+    static final int COL_MOVIE_RATING = 4;
+    static final int COL_MOVIE_RELEASE_DATE = 5;
+    static final int COL_MOVIE_BACKDROP = 6;
+    static final int COL_MOVIE_TMDB_ID = 7;
+    static final int COL_MOVIE_TRAILERS = 8;
+    static final int COL_MOVIE_REVIEWS = 9;
 
     public MainFragment() {
         // Required empty public constructor
@@ -108,10 +134,44 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
                 break;
             case FAVORITES:
                 // clear adapter, and query favorite database to add Movies back
-
+                mMovieGridAdapter.clear();
+                addFavorites();
                 break;
         }
-        //getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+    }
+
+    private void addFavorites() {
+        Cursor cursor = getActivity().getContentResolver().query(
+                MovieContract.FavoriteEntry.CONTENT_URI,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                null);
+
+        while(cursor.moveToNext()) {
+            String title = cursor.getString(COL_MOVIE_TITLE);
+            String poster_url = cursor.getString(COL_MOVIE_POSTER);
+            String synopsis = cursor.getString(COL_MOVIE_SYNOPSIS);
+            double rating = cursor.getDouble(COL_MOVIE_RATING);
+            String releaseDate = cursor.getString(COL_MOVIE_RELEASE_DATE);
+            String backdrop_url = cursor.getString(COL_MOVIE_BACKDROP);
+            int tmdbId = cursor.getInt(COL_MOVIE_TMDB_ID);
+            String trailerUrls = cursor.getString(COL_MOVIE_TRAILERS);
+            String reviews = cursor.getString(COL_MOVIE_REVIEWS);
+            Movie movieFromDatabase = new Movie(
+                    title,
+                    poster_url,
+                    synopsis,
+                    rating,
+                    releaseDate,
+                    backdrop_url,
+                    tmdbId
+            );
+            movieFromDatabase.setTrailers(trailerUrls);
+            movieFromDatabase.setReviews(reviews);
+            mMovieGridAdapter.add( movieFromDatabase );
+        }
+        mMovieGridAdapter.notifyDataSetChanged();
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -153,32 +213,4 @@ public class MainFragment extends Fragment implements AdapterView.OnItemSelected
         sortSpinner.setAdapter(adapter);
         sortSpinner.setOnItemSelectedListener(this);
     }
-
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        // based on spinner position, use movie table w/ top_rated
-////        String locationSetting = Utility.getPreferredLocation(getActivity());
-////
-////        // Sort order:  Ascending, by date.
-////        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-////        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-////                locationSetting, System.currentTimeMillis());
-//
-//        //return new CursorLoader(getActivity(), weatherForLocationUri, FORECAST_COLUMNS, null, null, sortOrder);
-//        return new CursorLoader(getContext(), null, null, null, null, null);
-//    }
-//
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-////        mForecastAdapter.swapCursor(cursor);
-////
-////        if (mPosition != ListView.INVALID_POSITION) {
-////            mListView.smoothScrollToPosition(mPosition);
-////        }
-//    }
-//
-//    public void onLoaderReset(Loader loader) {
-//        //mForecastAdapter.swapCursor(null);
-//    }
-
-
-
 }

@@ -1,10 +1,15 @@
 package com.jamoogy.popular_movies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jamoogy.popular_movies.data.MovieContract;
+import com.jamoogy.popular_movies.data.MovieDbHelper;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -23,6 +30,8 @@ import com.squareup.picasso.Picasso;
 public class DetailFragment extends Fragment {
 
     private Movie mDetailMovie;
+    private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
+    private Uri mMovieByIdUri;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -42,8 +51,8 @@ public class DetailFragment extends Fragment {
             // Get the clicked Movie object that was added as an extra to the intent
             mDetailMovie = (Movie)detailIntent.getParcelableExtra(getString(R.string.EXTRA_MOVIE));
             Resources resources = getResources();
-            //FetchTrailersTask trailersTask = new FetchTrailersTask(getContext());
-            //trailersTask.execute(mDetailMovie);
+            mMovieByIdUri = MovieContract.FavoriteEntry.buildFavoriteWithMovieId(mDetailMovie.tmdbId);
+
             // Set the poster image
             ImageView detailPoster = (ImageView) rootView.findViewById(R.id.detail_poster);
             Picasso.with(getContext()).load(mDetailMovie.poster_url)
@@ -106,6 +115,14 @@ public class DetailFragment extends Fragment {
             }
 
             CheckBox favoriteButton = (CheckBox) rootView.findViewById(R.id.detail_favorite_button);
+            // query database to look for mDetailMovie by id
+            // if found, set favorite button checked to true,
+            // else false
+            if (movieFound()) {
+                favoriteButton.setChecked(true);
+            } else {
+                favoriteButton.setChecked(false);
+            }
             favoriteButton.setOnClickListener(favBtnListener);
 
         }
@@ -115,11 +132,55 @@ public class DetailFragment extends Fragment {
     private View.OnClickListener favBtnListener = new View.OnClickListener() {
         public void onClick(View button) {
             CheckBox favButton = (CheckBox) button;
-            favButton.setChecked(true);
-            // insert movie into favorites database
-            
+            if (favButton.isChecked()) {
+                favButton.setChecked(true);
+                insertMovieToDatabase();
+                Log.d(LOG_TAG, "check");
+            } else {
+                favButton.setChecked(false);
+                deleteMovieFromDatabase();
+                Log.d(LOG_TAG, "uncheck");
+            }
+            SQLiteDatabase db = new MovieDbHelper(getContext()).getReadableDatabase();
+            long numRows = DatabaseUtils.queryNumEntries(db, MovieContract.FavoriteEntry.TABLE_NAME);
+            Log.d(LOG_TAG, "Number of database rows: " + numRows);
         }
     };
+
+    // query database to look for mDetailMovie
+    private boolean movieFound() {
+        Cursor cursor = getActivity().getContentResolver().query(
+                mMovieByIdUri,
+                new String[] {MovieContract.FavoriteEntry._ID},
+                null,
+                null,
+                null);
+        return cursor.moveToFirst();
+    }
+
+    private void insertMovieToDatabase() {
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.FavoriteEntry.COLUMN_TITLE, mDetailMovie.title);
+        values.put(MovieContract.FavoriteEntry.COLUMN_POSTER_URL, mDetailMovie.poster_url);
+        values.put(MovieContract.FavoriteEntry.COLUMN_SYNOPSIS, mDetailMovie.synopsis);
+        values.put(MovieContract.FavoriteEntry.COLUMN_RATING, mDetailMovie.rating);
+        values.put(MovieContract.FavoriteEntry.COLUMN_RELEASE_DATE, mDetailMovie.releaseDate);
+        values.put(MovieContract.FavoriteEntry.COLUMN_BACKDROP_URL, mDetailMovie.backdrop_url);
+        values.put(MovieContract.FavoriteEntry.COLUMN_TMDB_MOVIE_ID, mDetailMovie.tmdbId);
+        values.put(MovieContract.FavoriteEntry.COLUMN_TRAILER_URLS, mDetailMovie.trailerUrls);
+        values.put(MovieContract.FavoriteEntry.COLUMN_REVIEWS, mDetailMovie.reviews);
+
+        Uri uri = getActivity().getContentResolver().insert(MovieContract.FavoriteEntry.CONTENT_URI, values);
+        Log.d(LOG_TAG, "Uri inserted: " + uri.toString());
+    }
+
+    private void deleteMovieFromDatabase() {
+        int numDeleted = getActivity().getContentResolver().delete(
+                MovieContract.FavoriteEntry.CONTENT_URI,
+                MovieContract.FavoriteEntry.COLUMN_TMDB_MOVIE_ID + " = " + mDetailMovie.tmdbId,
+                null);
+        Log.d(LOG_TAG, "rows deleted: " + numDeleted);
+    }
 
     private View.OnClickListener trailerBtnListener = new View.OnClickListener() {
         public void onClick(View button) {

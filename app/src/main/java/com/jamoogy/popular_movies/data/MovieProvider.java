@@ -18,14 +18,6 @@ public class MovieProvider extends ContentProvider{
     static final int FAVORITES = 100;
     static final int FAVORITES_WITH_ID = 101;
 
-//    private static final SQLiteQueryBuilder sMovieByIdQueryBuilder;
-//
-//    static {
-//        sMovieByIdQueryBuilder = new SQLiteQueryBuilder();
-//
-//
-//    }
-
     private static final String sMovieId =
             MovieContract.FavoriteEntry.TABLE_NAME +
                     "." + MovieContract.FavoriteEntry.COLUMN_TMDB_MOVIE_ID + " = ? ";

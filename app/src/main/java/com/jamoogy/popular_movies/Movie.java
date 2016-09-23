@@ -21,7 +21,7 @@ public class Movie implements Serializable, Parcelable {
     String reviews; // converted from array to string for database
 
     public Movie(String title, String poster_reference, String synopsis, double rating,
-                 String release, String backdrop, int id) {//}, String trailer_reference) {
+                 String release, String backdrop, int id) {
         this.title = title;
         this.poster_url = poster_reference;
         this.synopsis = synopsis;
